@@ -94,7 +94,6 @@ public class DbManager {
                 config.setValidationTimeout(5000);
                 config.setIdleTimeout(600000);
                 config.setMaxLifetime(1800000);
-                config.setKeepaliveTime(30000);
                 config.setConnectionTestQuery("SELECT 1");
 
                 config.addDataSourceProperty("cachePrepStmts", "true");

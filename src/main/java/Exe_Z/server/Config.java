@@ -319,8 +319,68 @@ public class Config {
         setEnvProp(props, "db.user", "MYSQLUSER", "DB_USER", "MYSQL_USER");
         setEnvProp(props, "db.password", "MYSQLPASSWORD", "DB_PASSWORD", "MYSQL_PASSWORD");
         setEnvProp(props, "db.dbname", "MYSQLDATABASE", "DB_NAME", "MYSQL_DATABASE");
-        setEnvProp(props, "server.port", "SERVER_PORT");
+        setEnvProp(props, "server.port", "SERVER_PORT", "PORT");
         setEnvProp(props, "server.id", "SERVER_ID");
+
+        if (!props.containsKey("db.host") || "127.0.0.1".equals(props.getProperty("db.host"))) {
+            applyMysqlUrl(props, System.getenv("MYSQL_URL"));
+            applyMysqlUrl(props, System.getenv("DATABASE_URL"));
+        }
+
+        if (System.getenv("RAILWAY_ENVIRONMENT") != null
+                && ("127.0.0.1".equals(props.getProperty("db.host")) || props.getProperty("db.host") == null)) {
+            Log.error("Railway: chua co MYSQLHOST. Vao Exe_Z -> Variables -> Add Reference -> chon MySQL service.");
+        }
+    }
+
+    private void applyMysqlUrl(Properties props, String url) {
+        if (url == null || url.isEmpty() || !url.startsWith("mysql")) {
+            return;
+        }
+        try {
+            String withoutScheme = url.substring(url.indexOf("://") + 3);
+            String userPassHost = withoutScheme;
+            String database = "railway";
+            int slash = withoutScheme.indexOf('/');
+            if (slash >= 0) {
+                database = withoutScheme.substring(slash + 1);
+                int q = database.indexOf('?');
+                if (q >= 0) {
+                    database = database.substring(0, q);
+                }
+                userPassHost = withoutScheme.substring(0, slash);
+            }
+            String user = "root";
+            String password = "";
+            String hostPort = userPassHost;
+            int at = userPassHost.lastIndexOf('@');
+            if (at >= 0) {
+                hostPort = userPassHost.substring(at + 1);
+                String userPass = userPassHost.substring(0, at);
+                int colon = userPass.indexOf(':');
+                if (colon >= 0) {
+                    user = userPass.substring(0, colon);
+                    password = userPass.substring(colon + 1);
+                } else {
+                    user = userPass;
+                }
+            }
+            String host = hostPort;
+            String port = "3306";
+            int colon = hostPort.lastIndexOf(':');
+            if (colon >= 0) {
+                host = hostPort.substring(0, colon);
+                port = hostPort.substring(colon + 1);
+            }
+            props.setProperty("db.host", host);
+            props.setProperty("db.port", port);
+            props.setProperty("db.user", user);
+            props.setProperty("db.password", password);
+            props.setProperty("db.dbname", database);
+            Log.info("Loaded DB config from MYSQL_URL/DATABASE_URL");
+        } catch (Exception ex) {
+            Log.error("Khong parse duoc MYSQL_URL: " + ex.getMessage());
+        }
     }
 
     private void setEnvProp(Properties props, String key, String... envKeys) {
