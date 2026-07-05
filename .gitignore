@@ -1,0 +1,17 @@
+/logs
+/target
+/jdk-21
+/apache-maven
+/apache-maven-*
+*.DS_Store
+*.DS_Store?
+/config.properties
+/build
+/.vscode
+/nbactions.xml
+/nb-configuration.xml
+/.project
+/.classpath
+*.class
+/app.jar
+/Nso.jar

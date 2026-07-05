@@ -1,0 +1,17 @@
+.git
+.gitignore
+target
+jdk-21
+apache-maven
+apache-maven-*
+logs
+*.zip
+*.rar
+config.properties
+.vscode
+nbactions.xml
+nb-configuration.xml
+SQL
+Nso219Pc
+Teamobi2026
+*.class
